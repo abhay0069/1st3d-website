@@ -4,9 +4,10 @@ The complete authored **Kage temple experience** (ThreeUI `KageLandingPage`), im
 from its exact registered source and preserved as an interactive full-page document with its
 original navigation, scroll scenes, and local Three.js world.
 
-**Live site:** https://cdn.jsdelivr.net/gh/abhay0069/1st3d-website@live-v1/index.html
-(GitHub Pages at https://abhay0069.github.io/1st3d-website/ goes live automatically
-once Pages is enabled in repo Settings → Pages → Source: GitHub Actions.)
+**Live site:** https://abhay0069.github.io/1st3d-website/
+*(one-time setup: repo Settings → Pages → Source: **GitHub Actions** — the deploy
+workflow in `.github/workflows/deploy.yml` publishes automatically after that.
+Until then, run `npm run dev` for a local view.)*
 
 ## Run
 
