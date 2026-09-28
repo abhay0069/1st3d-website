@@ -1,0 +1,17 @@
+/* Host-page chrome only. The experience itself is the authored Kage document
+   rendered inside the frame; .shader-frame simply gives it the full viewport. */
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  background: #080808;
+}
+
+.shader-frame {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}

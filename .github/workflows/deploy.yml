@@ -1,0 +1,47 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Project Pages sites live under /<repo>/. The registered component loads the
+      # authored document from /landing-pages/kage.html; rebase that runtime URL onto
+      # the Pages base path in the built output only. Source files stay byte-exact.
+      - run: npx vite build --base=/1st3d-website/
+      - name: Rebase iframe document URL onto the Pages base path
+        run: |
+          sed -i 's|"/landing-pages/|"/1st3d-website/landing-pages/|g' dist/assets/*.js
+          grep -o '"/1st3d-website/landing-pages/kage.html"' dist/assets/*.js | head -1
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
