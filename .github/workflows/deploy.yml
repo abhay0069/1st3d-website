@@ -1,0 +1,48 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Relative base: the same build runs at any host path (Pages sub-path, CDN, local).
+      # The registered component loads the authored document from /landing-pages/kage.html;
+      # the built output rebases that runtime URL to be document-relative. Source files
+      # stay byte-exact.
+      - run: npx vite build --base=./
+      - name: Rebase iframe document URL to document-relative in the built output
+        run: |
+          sed -i 's|"/landing-pages/|"landing-pages/|g' dist/assets/*.js
+          grep -o '"landing-pages/kage.html"' dist/assets/*.js | head -1
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
